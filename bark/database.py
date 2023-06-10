@@ -12,7 +12,11 @@ class DatabaseManager:
     """
 
     def __init__(self, db_name: str) -> None:
-        self.connection = sqlite3.connect(db_name)
+        self.db_name = db_name
+        self.connection = sqlite3
+
+    def __enter__(self) -> None:
+        self.connection.connect(self.db_name)
 
     def _execute(self, statement: str, values=None) -> None:
         """
@@ -79,5 +83,4 @@ class DatabaseManager:
         """
         Close and clean the database after being used.
         """
-        if self.connection:
-            self.connection.close()
+        self.connection.close()
