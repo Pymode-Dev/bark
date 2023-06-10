@@ -1,3 +1,3 @@
-## Bark: TUI Web Bookmark
+# Bark: TUI Web Bookmark
 
-# This is web bookmark in the command line.
+## This is web bookmark in the command line.
