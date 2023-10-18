@@ -1,86 +1,72 @@
 """
-This is the database manager module
+database.py
 """
 
-import sqlite3
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List
+
+from tinydb import Query, TinyDB
 
 
 class DatabaseManager:
     """
-    Database Manager manages every action to be performed in a database.
+    class:
+        DatabaseManager: This manages all database operation
+    Methods:
+        insert_bookmark: store a bookmark
+        delete_bookmark: remove a bookmark from the database
+        read_bookmark: read what you store
+        update_bookmark: update your bookmark
     """
 
-    def __init__(self, db_name: str) -> None:
-        self.db_name = db_name
-        self.connection = sqlite3
+    def __init__(self, db_name: Path) -> None:
+        self.db_name = TinyDB(f"{db_name}.json")
 
-    def __enter__(self) -> None:
-        self.connection.connect(self.db_name)
+    def insert_bookmark(self, bk_data: Dict) -> int:
+        """
+        insert_bookmark: store a bookmark
+        Args:
+            bk_data: dict - the bookmark to store
+        Return:
+            int: The bookmark ID store
+        """
+        return self.db_name.insert(bk_data)
 
-    def _execute(self, statement: str, values=None) -> None:
+    def delete_bookmark(self, bk_title: str) -> None:
         """
-        This executes all sql statement passed into it.
+        delete_bookmark: remove a bookmark using the title of the bookmark
+        Args:
+            bk_title: str = the title to use
+        Return:
+            None
         """
-        cursor = self.connection.cursor()
-        cursor.execute(statement, values or {})
-        return cursor
+        query = Query()
 
-    def create_table(self, table_name: str, data_schema: Dict) -> None:
-        """
-        Create a table if the table is not exists.
-        """
-        column_schema = [
-            f"{column} {data_type}" for column, data_type in data_schema.items()
-        ]
-        self._execute(
-            f"""
-                CREATE TABLE IF NOT EXISTS {table_name}
-                ({", ".join(column_schema)});
-                """,
-        )
+        return self.db_name.remove(query.title == bk_title)
 
-    def insert_into_table(self, table_name: str, db_data: Dict) -> None:
+    def read_bookmark(self, bk_title=None) -> List:
         """
-        Insert data into the database.
+        read_bookmark: read all your bookmark or a specific one
+        Args:
+            bk_title: str - if specify by the user
+        Return:
+            list: if the bookmark is found or else it returns []
         """
-        placeholders = [f"{column} = ?" for column in db_data.keys()]
-        column_keys = ", ".join(db_data.keys())
-        column_values = tuple(db_data.values())
-        self._execute(
-            f"""
-                INSERT INTO {table_name}
-                ({column_keys})
-                VALUES ({placeholders});
-                """,
-            column_values,
-        )
+        query = Query()
 
-    def delete_from_table(self, table_name: str, bm_id: int) -> None:
-        """
-        Delete data from the table using id no.
-        """
-        self._execute(
-            f"""
-                DELETE FROM {table_name} WHERE id=?;
-                """,
-            bm_id,
-        )
+        if bk_title:
+            return self.db_name.search(query.title == bk_title)
+        return self.db_name.all()
 
-    def select_from_table(self, table_name: str, bm_id: int = None) -> None:
+    def update_bookmark(self, bk_data: dict, bk_title: str) -> None:
         """
-        Read all data or read some selected data using id.
+        update_bookmark: update a bookmark using the title to found the exact bookmark
+        Args:
+            bk_data: dict - the data to replace in place of the old one
+            bk_title: str - the condition key to find the specific bookmark
+        Return:
+            None
         """
-        query = f"SELECT * FROM {table_name} "
+        query = Query()
 
-        if bm_id:
-            query += "WHERE id=?"
-        query += " ORDER BY date_added;"
-
-        return self._execute(query)
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        """
-        Close and clean the database after being used.
-        """
-        self.connection.close()
+        return self.db_name.update(bk_data, query.title == bk_title)
