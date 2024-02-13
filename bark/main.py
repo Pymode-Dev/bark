@@ -3,8 +3,8 @@ main.py
 """
 from collections import OrderedDict
 
-import commands
-
+from .commands import (InsertBookmark, UpdateBookmark, DeleteBookmark
+, ReadBookmark, Quit)
 from .options import Options
 from .prints import choose_format, clear_screen, print_app_name, print_menu
 
@@ -78,25 +78,25 @@ def get_bookmark_title() -> str | None:
     return get_user_input("Enter bookmark title")
 
 
-if __name__ == "__main__":
+def main():
     app_options = OrderedDict(
         {
             "A": Options(
-                "Add Bookmark", commands.InsertBookmark(), prep_call=get_bookmark_data
+                "Add Bookmark", InsertBookmark(), prep_call=get_bookmark_data
             ),
             "B": Options(
                 "Delete Bookmark",
-                commands.DeleteBookmark(),
+                DeleteBookmark(),
                 prep_call=get_bookmark_title,
             ),
-            "C": Options("Read All Bookmark", commands.ReadBookmark()),
+            "C": Options("Read All Bookmark", ReadBookmark()),
             "D": Options(
                 "Read A Bookmark Using a Title",
-                commands.ReadBookmark(),
+                ReadBookmark(),
                 prep_call=get_bookmark_title,
             ),
-            "E": Options("Update A Bookmark", commands.UpdateBookmark()),
-            "Q": Options("Exit", commands.Quit()),
+            "E": Options("Update A Bookmark", UpdateBookmark()),
+            "Q": Options("Exit", Quit()),
         }
     )
 
@@ -105,3 +105,6 @@ if __name__ == "__main__":
     print_menu(app_options)
     users_choice = validate_user_choice(app_options)
     choose_format(app_options[users_choice].choose())
+
+if __name__ == "__main__":
+    main()   
