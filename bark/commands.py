@@ -78,7 +78,7 @@ class UpdateBookmark:
         UpdateBookmark
     """
 
-    def execute(self, data: dict, param: str) -> str:
+    def execute(self, data: dict) -> str:
         """
         execute: execute the command
         Args:
@@ -87,6 +87,8 @@ class UpdateBookmark:
         Return:
             str
         """
+        param = data['title']
+        data["date_added"] = dt.datetime.now().strftime("%d %b, %Y %H:%M:%S")
         db_instance.update_bookmark(data, param)
         return "Bookmark updated successfully."
 

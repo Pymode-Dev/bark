@@ -95,7 +95,7 @@ def main():
                 ReadBookmark(),
                 prep_call=get_bookmark_title,
             ),
-            "E": Options("Update A Bookmark", UpdateBookmark()),
+            "E": Options("Update A Bookmark", UpdateBookmark(), prep_call=get_bookmark_data),
             "Q": Options("Exit", Quit()),
         }
     )
